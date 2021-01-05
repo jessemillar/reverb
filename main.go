@@ -11,7 +11,7 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "1.0.0"
+const version = "1.0.1"
 
 type argConfig struct {
 	version   bool
@@ -49,6 +49,10 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 	if conf.version {
 		fmt.Fprintf(writer, version+"\n")
 		return
+	}
+
+	if width == 0 {
+		width = 22
 	}
 
 	fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
