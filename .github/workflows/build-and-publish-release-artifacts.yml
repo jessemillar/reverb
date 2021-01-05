@@ -19,8 +19,8 @@ jobs:
     - name: Get dependencies
       run: go get -v -t -d ./...
 
-    - name: Build
-      run: go build -v ./...
+    - run: env GOOS=linux GOARCH=amd64 go build ./... -o reverb-linux-amd64
+    - run: env GOOS=windows GOARCH=amd64 go build ./... -o reverb-windows-amd64
 
     - name: Test
       run: go test -v ./...
@@ -34,20 +34,25 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
         release_name: ${{ steps.get_version_number.outputs.version }}
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
-      id: upload-release-asset
+    - name: Upload Linux Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./reverb
-        asset_name: reverb
-        asset_content_type: application/x-binary
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./reverb-linux-amd64
+
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./reverb-windows-amd64
