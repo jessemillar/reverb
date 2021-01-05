@@ -36,7 +36,7 @@ jobs:
       run: go test -v ./...
 
   create_release:
-    name: Test
+    name: Create Release
     needs: [build, test]
     steps:
 
