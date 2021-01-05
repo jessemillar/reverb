@@ -47,6 +47,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_name: reverb-linux-amd64
         asset_path: ./reverb-linux-amd64
 
     - name: Upload Windows Release Asset
@@ -55,4 +56,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_name: reverb-windows-amd64
         asset_path: ./reverb-windows-amd64
