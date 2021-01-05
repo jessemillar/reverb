@@ -11,12 +11,13 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "1.0.2"
+const version = "2.0.0"
 const headlessWidth = 42
 
 type argConfig struct {
-	version   bool
-	separator string
+	version             bool
+	disableDynamicWidth bool
+	separator           string
 
 	// args are the positional (non-flag) command-line arguments.
 	args []string
@@ -35,8 +36,9 @@ func parseFlags(progname string, args []string) (config *argConfig, output strin
 
 	var conf argConfig
 
-	flags.BoolVar(&conf.version, "v", false, "Prints current reverb version")
-	flags.StringVar(&conf.separator, "d", "-", "The character used to draw the full-width separator")
+	flags.BoolVar(&conf.version, "v", false, "Print the current reverb version")
+	flags.BoolVar(&conf.disableDynamicWidth, "d", false, "Disable matching the width of the separators to the length of of long strings in a headless terminal")
+	flags.StringVar(&conf.separator, "c", "-", "The character used to draw the separator")
 
 	err = flags.Parse(args)
 	if err != nil {
@@ -53,9 +55,25 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 		return
 	}
 
-	// Check if we're in a headless terminal
+	// Limit the separator to one character
+	if len(conf.separator) > 1 {
+		fmt.Fprintf(writer, "Please pass only one character to the -c flag\n")
+		return
+	}
+
+	reverbString := strings.Join(conf.args, " ")
+
+	// React if we're in a headless terminal
 	if width == 0 {
-		width = headlessWidth
+		if len(reverbString) > 0 && !conf.disableDynamicWidth {
+			if len(reverbString) < headlessWidth {
+				width = headlessWidth
+			} else {
+				width = len(reverbString)
+			}
+		} else {
+			width = headlessWidth
+		}
 	}
 
 	fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
