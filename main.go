@@ -11,13 +11,14 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "2.0.2"
+const version = "2.1.2"
 const headlessWidth = 42
 
 type argConfig struct {
-	version             bool
-	disableDynamicWidth bool
-	separator           string
+	version               bool
+	disableDynamicWidth   bool
+	enableEscapeSequences bool
+	separator             string
 
 	// args are the positional (non-flag) command-line arguments.
 	args []string
@@ -38,6 +39,7 @@ func parseFlags(progname string, args []string) (config *argConfig, output strin
 
 	flags.BoolVar(&conf.version, "v", false, "Print the current reverb version")
 	flags.BoolVar(&conf.disableDynamicWidth, "d", false, "Disable matching the width of the separators to the length of of long strings in a headless terminal")
+	flags.BoolVar(&conf.enableEscapeSequences, "e", false, "Enable parsing of escape sequences (\\, \\n, \\r, etc.)")
 	flags.StringVar(&conf.separator, "c", "-", "The character used to draw the separator")
 
 	err = flags.Parse(args)
@@ -61,7 +63,19 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 		return
 	}
 
+	// Combine multiple arguments into a single word respecting newlines
 	reverbString := strings.Join(conf.args, " ")
+
+	// Unescape backslash characters if allowed
+	if conf.enableEscapeSequences {
+		reverbString = strings.Replace(reverbString, "\\a", "\a", -1)
+		reverbString = strings.Replace(reverbString, "\\b", "\b", -1)
+		reverbString = strings.Replace(reverbString, "\\f", "\f", -1)
+		reverbString = strings.Replace(reverbString, "\\n", "\n", -1)
+		reverbString = strings.Replace(reverbString, "\\r", "\r", -1)
+		reverbString = strings.Replace(reverbString, "\\t", "\t", -1)
+		reverbString = strings.Replace(reverbString, "\\v", "\v", -1)
+	}
 
 	// React if we're in a headless terminal
 	if width == 0 {
@@ -78,8 +92,8 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 
 	fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
 
-	if len(conf.args) > 0 {
-		fmt.Fprintf(writer, strings.Join(conf.args, " ")+"\n")
+	if len(reverbString) > 0 {
+		fmt.Fprintf(writer, reverbString+"\n")
 		fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
 	}
 }

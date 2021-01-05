@@ -41,6 +41,17 @@ func TestTextArgument(t *testing.T) {
 	assert.Equal(t, "---\nTest\n---\n", b.String(), "Unexpected output")
 }
 
+func TestTextArgumentWithEscapeSequences(t *testing.T) {
+	var b bytes.Buffer
+
+	var conf argConfig
+	conf.separator = "-"
+	conf.args = []string{"Test\n\ttest\ntest"}
+
+	reverb(width, &conf, &b)
+	assert.Equal(t, "---\nTest\n\ttest\ntest\n---\n", b.String(), "Unexpected output")
+}
+
 func TestDynamicSeparatorWidth(t *testing.T) {
 	var b bytes.Buffer
 
