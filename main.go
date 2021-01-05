@@ -11,7 +11,8 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "1.0.1"
+const version = "1.0.2"
+const headlessWidth = 42
 
 type argConfig struct {
 	version   bool
@@ -46,13 +47,15 @@ func parseFlags(progname string, args []string) (config *argConfig, output strin
 }
 
 func reverb(width int, conf *argConfig, writer io.Writer) {
+	// Print the version number and exit if that's what's asked for
 	if conf.version {
 		fmt.Fprintf(writer, version+"\n")
 		return
 	}
 
+	// Check if we're in a headless terminal
 	if width == 0 {
-		width = 22
+		width = headlessWidth
 	}
 
 	fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
