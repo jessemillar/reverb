@@ -11,7 +11,7 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "2.0.0"
+const version = "2.0.1"
 const headlessWidth = 42
 
 type argConfig struct {
