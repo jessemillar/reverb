@@ -1,22 +1,23 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
 func main() {
-	cliArgs := os.Args
+	separatorCharacter := flag.String("d", "-", "The character used to draw the full-width separator")
+	flag.Parse()
 
 	cols, _ := consolesize.GetConsoleSize()
 
-	fmt.Println(strings.Repeat("-", cols))
+	fmt.Println(strings.Repeat(*separatorCharacter, cols))
 
-	if len(cliArgs) > 1 {
-		fmt.Println(cliArgs[1])
-		fmt.Println(strings.Repeat("-", cols))
+	if len(flag.Args()) > 0 {
+		fmt.Println(flag.Args()[0])
+		fmt.Println(strings.Repeat(*separatorCharacter, cols))
 	}
 }
