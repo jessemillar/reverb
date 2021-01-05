@@ -11,7 +11,7 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "2.0.1"
+const version = "2.0.2"
 const headlessWidth = 42
 
 type argConfig struct {
@@ -96,6 +96,10 @@ func main() {
 	}
 
 	cols, _ := consolesize.GetConsoleSize()
+
+	if conf.disableDynamicWidth {
+		cols = 0
+	}
 
 	reverb(cols, conf, os.Stdout)
 }
