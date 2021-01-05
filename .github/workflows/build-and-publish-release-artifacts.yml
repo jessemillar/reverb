@@ -27,8 +27,18 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+  test:
+    name: Test
+    needs: build
+    steps:
+
     - name: Test
       run: go test -v ./...
+
+  create_release:
+    name: Test
+    needs: [build, test]
+    steps:
 
     - name: Create Release
       id: create_release
