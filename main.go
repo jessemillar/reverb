@@ -11,7 +11,7 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "0.2.0"
+const version = "1.0.0"
 
 type argConfig struct {
 	version   bool
