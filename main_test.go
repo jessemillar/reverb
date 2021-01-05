@@ -41,6 +41,31 @@ func TestTextArgument(t *testing.T) {
 	assert.Equal(t, "---\nTest\n---\n", b.String(), "Unexpected output")
 }
 
+func TestTextArgumentMultipleLines(t *testing.T) {
+	var b bytes.Buffer
+
+	var conf argConfig
+	conf.separator = "-"
+	conf.enableEscapeSequences = true
+	conf.args = []string{"Test\nTest"}
+
+	reverb(width, &conf, &b)
+	assert.Equal(t, "---\nTest\nTest\n---\n", b.String(), "Unexpected output")
+}
+
+func TestTextArgumentMultipleLinesLong(t *testing.T) {
+	var b bytes.Buffer
+
+	var conf argConfig
+	conf.separator = "-"
+	conf.enableEscapeSequences = true
+	conf.args = []string{"Test\nTest test test test test test test test test test test test"}
+
+	// Pass 0 to simulate a headless environment
+	reverb(0, &conf, &b)
+	assert.Equal(t, "-----------------------------------------------------------\nTest\nTest test test test test test test test test test test test\n-----------------------------------------------------------\n", b.String(), "Unexpected output")
+}
+
 func TestTextArgumentWithEscapeSequences(t *testing.T) {
 	var b bytes.Buffer
 

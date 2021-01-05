@@ -11,7 +11,7 @@ import (
 	"github.com/nathan-fiscaletti/consolesize-go"
 )
 
-const version = "2.1.2"
+const version = "2.2.0"
 const headlessWidth = 42
 
 type argConfig struct {
@@ -51,6 +51,18 @@ func parseFlags(progname string, args []string) (config *argConfig, output strin
 	return &conf, buf.String(), nil
 }
 
+func findLongestLine(allLines []string) int {
+	longest := 0
+
+	for _, line := range allLines {
+		if len(line) > longest {
+			longest = len(line)
+		}
+	}
+
+	return longest
+}
+
 func reverb(width int, conf *argConfig, writer io.Writer) {
 	// Print the version number and exit if that's what's asked for
 	if conf.version {
@@ -80,12 +92,20 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 
 	// React if we're in a headless terminal
 	if width == 0 {
-		if len(reverbString) > 0 && !conf.disableDynamicWidth {
-			if len(reverbString) < headlessWidth {
+		stringWidth := len(reverbString)
+
+		if stringWidth > 0 && !conf.disableDynamicWidth {
+			// If the passed string has multiple lines, find the width of the longest line
+			if conf.enableEscapeSequences {
+				stringWidth = findLongestLine(strings.Split(reverbString, "\n"))
+			}
+
+			// Take a look at the string width
+			if stringWidth < headlessWidth {
 				width = headlessWidth
 			} else {
 				// If there's a string longer than headlessWidth, match the separator width to the long string
-				width = len(reverbString)
+				width = stringWidth
 			}
 		} else {
 			// Use a static separator width
