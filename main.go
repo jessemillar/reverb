@@ -19,19 +19,18 @@ type argConfig struct {
 	disableDynamicWidth   bool
 	enableEscapeSequences bool
 	separator             string
-
-	// args are the positional (non-flag) command-line arguments.
-	args []string
+	args                  []string // args are the positional (non-flag) command-line arguments
 }
 
-// parseFlags parses the command-line arguments provided to the program.
-// Typically os.Args[0] is provided as 'progname' and os.args[1:] as 'args'.
-// Returns the Config in case parsing succeeded, or an error. In any case, the
-// output of the flag.Parse is returned in output.
+// parseFlags parses the command-line arguments provided to the program
+// Typically os.Args[0] is provided as 'progname' and os.args[1:] as 'args'
+// Returns the Config in case parsing succeeded, or an error
+// In any case, the output of the flag.Parse is returned in output
 // A special case is usage requests with -h or -help: then the error
-// flag.ErrHelp is returned and output will contain the usage message.
+// flag.ErrHelp is returned and output will contain the usage message
 func parseFlags(progname string, args []string) (config *argConfig, output string, err error) {
 	flags := flag.NewFlagSet(progname, flag.ContinueOnError)
+
 	var buf bytes.Buffer
 	flags.SetOutput(&buf)
 
@@ -46,7 +45,9 @@ func parseFlags(progname string, args []string) (config *argConfig, output strin
 	if err != nil {
 		return nil, buf.String(), err
 	}
+
 	conf.args = flags.Args()
+
 	return &conf, buf.String(), nil
 }
 
@@ -83,15 +84,19 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 			if len(reverbString) < headlessWidth {
 				width = headlessWidth
 			} else {
+				// If there's a string longer than headlessWidth, match the separator width to the long string
 				width = len(reverbString)
 			}
 		} else {
+			// Use a static separator width
 			width = headlessWidth
 		}
 	}
 
+	// Print the first separator
 	fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
 
+	// Print the text and a second separator if we supplied a text string
 	if len(reverbString) > 0 {
 		fmt.Fprintf(writer, reverbString+"\n")
 		fmt.Fprintf(writer, strings.Repeat(conf.separator, width)+"\n")
@@ -99,6 +104,7 @@ func reverb(width int, conf *argConfig, writer io.Writer) {
 }
 
 func main() {
+	// Parse command line flags
 	conf, output, err := parseFlags(os.Args[0], os.Args[1:])
 	if err == flag.ErrHelp {
 		fmt.Println(output)
@@ -109,11 +115,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Get terminal width
 	cols, _ := consolesize.GetConsoleSize()
 
+	// Disable dynamic separator width if told to by the user
 	if conf.disableDynamicWidth {
 		cols = 0
 	}
 
+	// Do the magic
 	reverb(cols, conf, os.Stdout)
 }
