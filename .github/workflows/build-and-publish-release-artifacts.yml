@@ -40,6 +40,11 @@ jobs:
     needs: [build, test]
     steps:
 
+    - name: Get Version Number
+      id: get_version_number
+      run: echo "::set-output name=version::$(./reverb -v)"
+      shell: bash
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -47,11 +52,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Changes in this Release
-          - First Change
-          - Second Change
+        release_name: ${{ steps.get_version_number.outputs.version }}
         draft: false
         prerelease: false
 
