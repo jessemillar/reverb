@@ -27,7 +27,7 @@ jobs:
 
     - name: Get Version Number
       id: get_version_number
-      run: echo "::set-output name=version::$(./reverb -v)"
+      run: echo "::set-output name=version::$(./reverb-linux-amd64 -v)"
       shell: bash
 
     - name: Create Release
